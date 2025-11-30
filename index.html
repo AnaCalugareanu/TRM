@@ -2,14 +2,37 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Harry Potter DEBUG</title>
+    <title>Harry Potter AR - Chest Version</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+
+    <style>
+        .arjs-loader {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .arjs-loader div {
+                text-align: center;
+                font-size: 1.25em;
+                color: white;
+                font-family: serif;
+                font-weight: bold;
+            }
+    </style>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-    <div style="position: fixed; top: 10px; width:100%; text-align: center; z-index: 1; color: red; font-weight: bold;">
-        DEBUG MODE - NO AUDIO
+    <div class="arjs-loader">
+        <div>Loading Treasure...</div>
     </div>
 
     <a-scene vr-mode-ui="enabled: false;"
@@ -24,7 +47,8 @@
                 init: function () {
                     const markerKey = document.querySelector('#marker-key');
                     const markerBase = document.querySelector('#marker-base');
-                    const debugBox = document.querySelector('#debug-box');
+
+                    const magicChest = document.querySelector('#magic-chest');
                     const statusText = document.querySelector('#status-text');
 
                     // 1. CHEIA (Stema)
@@ -36,38 +60,56 @@
                     // 2. BAZA (Posterul)
                     markerBase.addEventListener('markerFound', () => {
                         if (isUnlocked) {
-                            // Daca e deblocat -> Apare o cutie VERDE
-                            debugBox.setAttribute('material', 'color: green');
-                            debugBox.setAttribute('visible', 'true');
-                            statusText.setAttribute('value', 'UNLOCKED');
-                            statusText.setAttribute('color', 'green');
+                            // DEBLOCAT -> Arata Cufarul
+                            magicChest.setAttribute('visible', 'true');
+
+                            statusText.setAttribute('value', 'ALOHOMORA!\nVault Open');
+                            statusText.setAttribute('color', '#FFD700'); // Auriu
+                            statusText.setAttribute('scale', '80 80 80');
                         } else {
-                            // Daca e blocat -> Nu apare cutia (sau apare rosie daca vrei)
-                            debugBox.setAttribute('visible', 'false');
+                            // BLOCAT -> Ascunde Cufarul
+                            magicChest.setAttribute('visible', 'false');
+
                             statusText.setAttribute('value', 'LOCKED');
                             statusText.setAttribute('color', 'red');
+                            statusText.setAttribute('scale', '100 100 100');
                         }
                     });
                 }
             });
         </script>
 
-        <a-nft id="marker-key" magic-handler type="nft" url="./nft/alp"
+        <a-nft id="marker-key"
+               magic-handler
+               type="nft"
+               url="./nft/alp"
                smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
             <a-text value="KEY FOUND" rotation="-90 0 0" scale="80 80 80" align="center" color="cyan"></a-text>
         </a-nft>
 
-        <a-nft id="marker-base" magic-handler type="nft" url="./nft/ap"
+        <a-nft id="marker-base"
+               magic-handler
+               type="nft"
+               url="./nft/ap"
                smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
 
-            <a-box id="debug-box"
-                   position="0 0 0"
-                   scale="150 150 150"
-                   color="red"
-                   visible="false">
-            </a-box>
+            <a-entity id="magic-chest"
+                      gltf-model="./assets/chest.glb"
+                      scale="350 350 350"
+                      position="0 0 0"
+                      rotation="0 0 0"
+                      visible="false"
+                      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            </a-entity>
 
-            <a-text id="status-text" value="LOCKED" rotation="-90 0 0" position="0 0 -100" scale="100 100 100" align="center" color="red"></a-text>
+            <a-text id="status-text"
+                    value="LOCKED"
+                    rotation="-90 0 0"
+                    position="0 0 -100"
+                    scale="100 100 100"
+                    align="center"
+                    color="red">
+            </a-text>
         </a-nft>
 
         <a-entity camera></a-entity>
