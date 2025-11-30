@@ -2,146 +2,72 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Harry Potter AR Experience</title>
-    
+    <title>Harry Potter DEBUG</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-
-    <style>
-        /* UI pentru Loading - Stil Magic */
-        .arjs-loader {
-            height: 100%; width: 100%; position: absolute;
-            top: 0; left: 0; 
-            background-color: #1a1a1a; /* Negru inchis */
-            z-index: 9999; display: flex; justify-content: center; align-items: center;
-        }
-        .arjs-loader div {
-            text-align: center; font-size: 1.5em; color: #d4af37; /* Auriu */
-            font-family: 'Times New Roman', serif; 
-            border: 2px solid #d4af37;
-            padding: 20px;
-            background: rgba(0,0,0,0.8);
-        }
-    </style>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-    
-    <div class="arjs-loader">
-        <div>Loading Magical Artifacts...<br>(Please wait)</div>
+    <div style="position: fixed; top: 10px; width:100%; text-align: center; z-index: 1; color: red; font-weight: bold;">
+        DEBUG MODE - NO AUDIO
     </div>
 
-    <a-scene
-        vr-mode-ui="enabled: false;"
-        renderer="logarithmicDepthBuffer: true;"
-        embedded
-        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
-
-        <a-assets>
-            <audio id="sound-wand" src="./assets/wand.mp3"></audio>
-            <audio id="sound-success" src="./assets/success.mp3"></audio>
-        </a-assets>
+    <a-scene vr-mode-ui="enabled: false;"
+             renderer="logarithmicDepthBuffer: true;"
+             embedded
+             arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
 
         <script>
             let isUnlocked = false;
-            let soundWandPlayed = false;
-            let soundSuccessPlayed = false;
 
             AFRAME.registerComponent('magic-handler', {
                 init: function () {
                     const markerKey = document.querySelector('#marker-key');
                     const markerBase = document.querySelector('#marker-base');
-                    
+                    const debugBox = document.querySelector('#debug-box');
                     const statusText = document.querySelector('#status-text');
-                    const magicChest = document.querySelector('#magic-chest');
-                    
-                    // Sunetele
-                    const sWand = document.querySelector('#sound-wand');
-                    const sSuccess = document.querySelector('#sound-success');
 
-                    // 1. Cand gasim Stema (CHEIA)
+                    // 1. CHEIA (Stema)
                     markerKey.addEventListener('markerFound', () => {
                         isUnlocked = true;
-                        
-                        // Redam sunetul doar o singura data
-                        if (!soundWandPlayed) {
-                            sWand.play().catch(e => console.log("Audio play failed:", e)); 
-                            soundWandPlayed = true;
-                        }
+                        console.log("Cheia gasita!");
                     });
 
-                    // 2. Cand gasim Posterul (BAZA)
+                    // 2. BAZA (Posterul)
                     markerBase.addEventListener('markerFound', () => {
                         if (isUnlocked) {
-                            // SCENARIU 1: DEBLOCARE + SUCCES
-                            magicChest.setAttribute('visible', 'true');
-                            
-                            statusText.setAttribute('value', 'ALOHOMORA!\nThe Vault is Open');
-                            statusText.setAttribute('color', '#FFD700'); // Auriu
-                            statusText.setAttribute('scale', '80 80 80');
-                            
-                            // Redam sunetul de succes
-                            if (!soundSuccessPlayed) {
-                                sSuccess.play().catch(e => console.log("Audio play failed:", e));
-                                soundSuccessPlayed = true;
-                            }
-
+                            // Daca e deblocat -> Apare o cutie VERDE
+                            debugBox.setAttribute('material', 'color: green');
+                            debugBox.setAttribute('visible', 'true');
+                            statusText.setAttribute('value', 'UNLOCKED');
+                            statusText.setAttribute('color', 'green');
                         } else {
-                            // SCENARIU 2: BLOCAT + MESAJ
-                            magicChest.setAttribute('visible', 'false');
-                            
-                            statusText.setAttribute('value', 'LOCKED by Magic\nFind the Hogwarts Crest');
-                            statusText.setAttribute('color', '#FF0000'); // Rosu
-                            statusText.setAttribute('scale', '100 100 100');
+                            // Daca e blocat -> Nu apare cutia (sau apare rosie daca vrei)
+                            debugBox.setAttribute('visible', 'false');
+                            statusText.setAttribute('value', 'LOCKED');
+                            statusText.setAttribute('color', 'red');
                         }
-                    });
-                    
-                    // Resetam sunetul cand pierdem markerul (optional, ca sa poata fi rejucat)
-                    markerBase.addEventListener('markerLost', () => {
-                        // Nu facem nimic, lasam starea asa
                     });
                 }
             });
         </script>
 
-        <a-nft
-            id="marker-key"
-            magic-handler
-            type="nft"
-            url="./nft/alp"
-            smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
-            
-            <a-text value="MAGIC DETECTED" rotation="-90 0 0" scale="80 80 80" align="center" color="cyan"></a-text>
+        <a-nft id="marker-key" magic-handler type="nft" url="./nft/alp"
+               smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
+            <a-text value="KEY FOUND" rotation="-90 0 0" scale="80 80 80" align="center" color="cyan"></a-text>
         </a-nft>
 
-        <a-nft
-            id="marker-base"
-            magic-handler
-            type="nft"
-            url="./nft/ap"
-            smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
+        <a-nft id="marker-base" magic-handler type="nft" url="./nft/ap"
+               smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
 
-            <a-entity
-                id="magic-chest"
-                gltf-model="./assets/chest.glb"
-                scale="350 350 350"
-                position="0 0 0"
-                rotation="0 0 0"
-                visible="false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"> 
-                </a-entity>
+            <a-box id="debug-box"
+                   position="0 0 0"
+                   scale="150 150 150"
+                   color="red"
+                   visible="false">
+            </a-box>
 
-            <a-text
-                id="status-text"
-                value="LOCKED"
-                rotation="-90 0 0"
-                position="0 0 -150" 
-                scale="120 120 120" 
-                align="center"
-                font="serif"
-                color="red">
-            </a-text>
+            <a-text id="status-text" value="LOCKED" rotation="-90 0 0" position="0 0 -100" scale="100 100 100" align="center" color="red"></a-text>
         </a-nft>
 
         <a-entity camera></a-entity>
