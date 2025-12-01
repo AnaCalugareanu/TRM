@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Harry Potter AR - Final Exam</title>
+    <title>Harry Potter AR - Vertical Fix</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
@@ -62,7 +62,11 @@
                 
                 const sWand = document.querySelector('#sound-wand');
                 const sSuccess = document.querySelector('#sound-success');
-                const magicChest = document.querySelector('#magic-chest');
+                // Aici selectam wrapper-ul cufarului, nu modelul direct
+                const magicChestWrapper = document.querySelector('#magic-chest-wrapper');
+                // Selectam modelul din interior pentru animatia de click
+                const magicChestModel = document.querySelector('#magic-chest-model');
+                const jailModel = document.querySelector('#jail-model');
 
                 startBtn.addEventListener('click', () => {
                     sWand.play().then(() => sWand.pause());
@@ -70,10 +74,10 @@
                     startScreen.style.display = 'none';
                 });
 
-                // CLICK: Doar cufarul reactioneaza, gratiile NU.
+                // CLICK: Animam modelul din interior
                 window.addEventListener('click', () => {
                     if (chestVisible && isUnlocked) {
-                        magicChest.setAttribute('animation__pulse', 'property: scale; to: 200 200 200; dur: 200; easing: easeInOutQuad; dir: alternate; loop: 2');
+                        magicChestModel.setAttribute('animation__pulse', 'property: scale; to: 200 200 200; dur: 200; easing: easeInOutQuad; dir: alternate; loop: 2');
                         sWand.currentTime = 0;
                         sWand.play();
                     }
@@ -85,7 +89,7 @@
                         const markerBase = document.querySelector('#marker-base');
                         const markerEnemy = document.querySelector('#marker-enemy');
                         
-                        const magicChest = document.querySelector('#magic-chest');
+                        const magicChestWrapper = document.querySelector('#magic-chest-wrapper');
                         const jailModel = document.querySelector('#jail-model');
                         const statusText = document.querySelector('#status-text');
 
@@ -99,7 +103,7 @@
                             }
                         });
 
-                        // 2. INAMICUL (Fura Cheia)
+                        // 2. INAMICUL
                         markerEnemy.addEventListener('markerFound', () => {
                             if (isUnlocked) {
                                 isUnlocked = false; 
@@ -111,23 +115,22 @@
                         // 3. POSTERUL (Baza)
                         markerBase.addEventListener('markerFound', () => {
                             if (isUnlocked) {
-                                // --- CAZUL FERICIT (DESCHIS) ---
+                                // CAZUL FERICIT (DESCHIS)
                                 chestVisible = true;
-                                magicChest.setAttribute('visible', 'true');
-                                jailModel.setAttribute('visible', 'false'); // Ascundem gratiile
+                                magicChestWrapper.setAttribute('visible', 'true');
+                                jailModel.setAttribute('visible', 'false');
                                 
                                 statusText.setAttribute('value', 'ALOHOMORA!\nVault Open');
                                 statusText.setAttribute('color', '#FFD700'); 
                                 statusText.setAttribute('scale', '80 80 80');
 
-                                if (magicChest.getAttribute('scale').x === 150) { 
-                                    sSuccess.play();
-                                }
+                                sSuccess.play();
+
                             } else {
-                                // --- CAZUL TRIST (BLOCAT) ---
+                                // CAZUL TRIST (BLOCAT)
                                 chestVisible = false;
-                                magicChest.setAttribute('visible', 'false');
-                                jailModel.setAttribute('visible', 'true'); // Aratam gratiile
+                                magicChestWrapper.setAttribute('visible', 'false');
+                                jailModel.setAttribute('visible', 'true');
                                 
                                 statusText.setAttribute('value', 'LOCKED\nPrisoner Trapped!');
                                 statusText.setAttribute('color', 'red');
@@ -155,14 +158,14 @@
         <a-nft id="marker-base" magic-handler type="nft" url="./nft/ap"
             smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
 
-            <a-entity
-                id="magic-chest"
-                gltf-model="./assets/chest.glb"
-                scale="150 150 150"
-                position="0 0 0"
-                rotation="0 0 0"
-                visible="false"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+            <a-entity id="magic-chest-wrapper" position="0 0 0" rotation="-90 0 0" visible="false">
+                <a-entity
+                    id="magic-chest-model"
+                    gltf-model="./assets/chest.glb"
+                    scale="150 150 150"
+                    rotation="0 0 0"
+                    animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+                </a-entity>
             </a-entity>
 
             <a-entity
@@ -170,7 +173,7 @@
                 gltf-model="./assets/jail.glb"
                 scale="150 150 150" 
                 position="0 0 0"
-                rotation="0 0 0"
+                rotation="-90 0 0"
                 visible="false">
             </a-entity>
             <a-text id="status-text" value="LOCKED" rotation="-90 0 0" position="0 0 -100"
