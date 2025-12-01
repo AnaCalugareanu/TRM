@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Harry Potter AR - Jail Logic</title>
+    <title>Harry Potter AR - Final Exam</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
@@ -36,7 +36,7 @@
     <div id="start-screen">
         <button id="start-btn">ENTER WIZARDING WORLD</button>
         <div style="color:gray; margin-top:20px; font-family:serif;">
-            Find the Key -> Open the Chest -> Beware of the Prison!
+            Find Key -> Open Chest -> Avoid Dementors
         </div>
     </div>
 
@@ -64,14 +64,13 @@
                 const sSuccess = document.querySelector('#sound-success');
                 const magicChest = document.querySelector('#magic-chest');
 
-                // START
                 startBtn.addEventListener('click', () => {
                     sWand.play().then(() => sWand.pause());
                     sSuccess.play().then(() => sSuccess.pause());
                     startScreen.style.display = 'none';
                 });
 
-                // CLICK INTERACTION (doar cand e cufarul vizibil)
+                // CLICK: Doar cufarul reactioneaza, gratiile NU.
                 window.addEventListener('click', () => {
                     if (chestVisible && isUnlocked) {
                         magicChest.setAttribute('animation__pulse', 'property: scale; to: 200 200 200; dur: 200; easing: easeInOutQuad; dir: alternate; loop: 2');
@@ -90,7 +89,7 @@
                         const jailModel = document.querySelector('#jail-model');
                         const statusText = document.querySelector('#status-text');
 
-                        // 1. CHEIA (Recuperare)
+                        // 1. CHEIA
                         markerKey.addEventListener('markerFound', () => {
                             if (!isUnlocked) {
                                 isUnlocked = true;
@@ -103,40 +102,32 @@
                         // 2. INAMICUL (Fura Cheia)
                         markerEnemy.addEventListener('markerFound', () => {
                             if (isUnlocked) {
-                                isUnlocked = false; // BLOCARE!
-                                
-                                // Afisam alerta vizuala mare
+                                isUnlocked = false; 
                                 warningMsg.style.display = 'block';
                                 setTimeout(() => { warningMsg.style.display = 'none'; }, 3000);
                             }
                         });
 
-                        // 3. BAZA (Posterul) - AICI SE INTAMPLA MAGIA VIZUALA
+                        // 3. POSTERUL (Baza)
                         markerBase.addEventListener('markerFound', () => {
                             if (isUnlocked) {
                                 // --- CAZUL FERICIT (DESCHIS) ---
                                 chestVisible = true;
-                                
-                                // Aratam Cufarul, Ascundem Gratiile
                                 magicChest.setAttribute('visible', 'true');
-                                jailModel.setAttribute('visible', 'false');
+                                jailModel.setAttribute('visible', 'false'); // Ascundem gratiile
                                 
                                 statusText.setAttribute('value', 'ALOHOMORA!\nVault Open');
                                 statusText.setAttribute('color', '#FFD700'); 
                                 statusText.setAttribute('scale', '80 80 80');
 
-                                // Sunet succes (hack sa nu sune incontinuu)
                                 if (magicChest.getAttribute('scale').x === 150) { 
                                     sSuccess.play();
                                 }
-
                             } else {
-                                // --- CAZUL TRIST (BLOCAT / FURAT) ---
+                                // --- CAZUL TRIST (BLOCAT) ---
                                 chestVisible = false;
-                                
-                                // Ascundem Cufarul, ARATAM GRATIILE
                                 magicChest.setAttribute('visible', 'false');
-                                jailModel.setAttribute('visible', 'true');
+                                jailModel.setAttribute('visible', 'true'); // Aratam gratiile
                                 
                                 statusText.setAttribute('value', 'LOCKED\nPrisoner Trapped!');
                                 statusText.setAttribute('color', 'red');
@@ -159,7 +150,7 @@
 
         <a-nft id="marker-enemy" magic-handler type="nft" url="./nft/bad"
             smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
-            </a-nft>
+        </a-nft>
 
         <a-nft id="marker-base" magic-handler type="nft" url="./nft/ap"
             smooth="true" smoothCount="10" smoothTolerance=".01" smoothThreshold="5">
